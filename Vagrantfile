@@ -10,7 +10,7 @@ Vagrant.require_version ">= 1.6.2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # The number of minions to provision
-  num_minion = (ENV['SHIPYARD_NUM_MINIONS'] || 3).to_i
+  num_minion = 3
 
   # ip configuration
   master_ip = "10.245.1.2"
@@ -19,7 +19,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   minion_ips_str = minion_ips.join(",")
 
   # Determine the OS platform to use
-  docker_os = ENV['KUBERNETES_OS'] || "ubuntu"
+  docker_os = ENV['DOCKER_OS'] || "ubuntu"
 
   # OS platform to box information
   docker_box = {
@@ -30,12 +30,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   }
 
   # Shipyard server
-  config.vm.define "shipyard" do |config|
-    config.vm.box = docker_box[docker_os]["name"]
-    config.vm.box_url = docker_box[docker_os]["box_url"]
-    #config.vm.provision "shell", inline: "/vagrant/cluster/vagrant/provision-master.sh #{master_ip} #{num_minion} #{minion_ips_str}"
-    config.vm.network "private_network", ip: "#{master_ip}"
-    config.vm.hostname = "shipyard"
+  config.vm.define "shipyard" do |shipyard|
+    shipyard.vm.box = docker_box[docker_os]["name"]
+    shipyard.vm.box_url = docker_box[docker_os]["box_url"]
+    shipyard.vm.network "private_network", ip: "#{master_ip}"
+    shipyard.vm.hostname = "shipyard"
+    shipyard.vm.provision "shell", path: "provision_shipyard.sh"
+
   end
 
   # Docker hosts
@@ -45,10 +46,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       minion_ip = minion_ips[n]
       minion.vm.box = docker_box[docker_os]["name"]
       minion.vm.box_url = docker_box[docker_os]["box_url"]
-      #minion.vm.provision "shell", inline: "/vagrant/cluster/vagrant/provision-minion.sh #{master_ip} #{num_minion} #{minion_ips_str} #{minion_ip} #{minion_index}"
       minion.vm.network "private_network", ip: "#{minion_ip}"
       minion.vm.hostname = "docker-#{minion_index}"
+      minion.vm.provision "shell", path: "provision_hosts.sh"
     end
+
   end
 
 end
