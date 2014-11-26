@@ -1,7 +1,8 @@
-shipyard-vagrant
-================
+### Pre-requirements:
+* Vagrant >= 1.6.3 (http://www.vagrantup.com/downloads.html)
+* VirtualBox >= 4.3.10 (https://www.virtualbox.org/)
 
-Test setup to deploy Shipyard host with some docker engines (minions, slaves, hosts, whateva).
+### Install
 
 Clone this repo:
 
