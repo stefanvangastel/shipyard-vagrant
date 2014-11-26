@@ -4,10 +4,14 @@
 apt-get update
 
 #Install docker
-DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes docker.io
+DEBIAN_FRONTEND=noninteractive 
+apt-get install -y --force-yes docker.io wget
 
 #Create symlink
 ln -sf /usr/bin/docker.io /usr/local/bin/docker
 
-#Run shipyard
-docker run -i -t -v /var/run/docker.sock:/docker.sock shipyard/deploy setup
+#Launch RethindDB
+docker run -d -P --name rethinkdb shipyard/rethinkdb
+
+#Launch Shipyard
+docker run -d -p 8080:8080 --link rethinkdb:rethinkdb shipyard/shipyard
